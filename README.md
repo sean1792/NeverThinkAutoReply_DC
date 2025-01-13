@@ -5,9 +5,12 @@
 ![](assets/demo/img.png)
 
 ## 效果演示
-<iframe width="560" height="315" src="https://youtu.be/bpvHgRAo-eE" frameborder="0" allowfullscreen></iframe>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/bpvHgRAo-eE" frameborder="0" allowfullscreen></iframe>
+
 ![](assets/demo/img2.png)
 ![](assets/demo/img3.png)
+
 
 ## 功能特點
 
