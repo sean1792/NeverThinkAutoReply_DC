@@ -11,7 +11,6 @@
 ![](assets/demo/img2.png)
 ![](assets/demo/img3.png)
 
-
 ## 功能特點
 
 - 全局快捷鍵叫出 (預設 Ctrl+Shift+X)
