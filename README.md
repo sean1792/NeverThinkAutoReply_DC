@@ -6,7 +6,7 @@
 
 ## 效果演示
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/bpvHgRAo-eE" frameborder="0" allowfullscreen></iframe>
+<video src='https://youtu.be/bpvHgRAo-eE' width=180/>
 
 ![](assets/demo/img2.png)
 ![](assets/demo/img3.png)
