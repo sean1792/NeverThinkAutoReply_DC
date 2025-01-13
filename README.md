@@ -37,6 +37,7 @@ pip install -r requirements.txt
 - pynput
 - windows-toasts
 - pywin32
+- openai
 
 ## 前置準備
 
