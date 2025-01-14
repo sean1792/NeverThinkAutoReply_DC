@@ -109,7 +109,5 @@ python app.py
 
 ## Mygo API使用
 
-- ```
-  https://mygo.miyago9267.com/
-  https://github.com/miyago9267/MyGO-Searcher
-  ```
+- https://mygo.miyago9267.com/
+- https://github.com/miyago9267/MyGO-Searcher
