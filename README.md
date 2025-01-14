@@ -99,7 +99,7 @@ python app.py
 
 您可以在config.ini中修改以下設定：
 
-- 快捷鍵：修改 `hotkey` 變數
+- 快捷鍵：修改 `hotkey` 參數
 - GPT模型：修改 `gpt_model` 參數
 - OpenAI金鑰：修改 `openai` 參數
 
