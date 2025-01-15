@@ -9,7 +9,7 @@ import keyboard
 import pyperclip
 import pyautogui
 from pynput.mouse import Listener
-from PySide6.QtCore import Qt, QSize, QPoint, QFile, QTextStream, Signal, QObject
+from PySide6.QtCore import Qt, QSize, QPoint, QFile, QTextStream, Signal, QObject, QTimer
 from PySide6.QtGui import QCursor, QIcon
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton, QVBoxLayout, QWidget, QSystemTrayIcon, QMenu
 from windows_toasts import WindowsToaster, Toast, ToastDisplayImage, ToastDuration
@@ -254,6 +254,10 @@ class QuickReply(QWidget):
         logger.info("初始化 QuickReply 視窗")
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+
+        self.hide_timer = QTimer(self)
+        self.hide_timer.timeout.connect(self.check_focus)
+        self.hide_timer.start(100)
 
         self.init_ui()
 
