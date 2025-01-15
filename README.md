@@ -21,7 +21,7 @@ https://youtu.be/bpvHgRAo-eE
   - 正常回覆
   - 反駁模式
   - 嘲諷模式
-  - Mygo 表情貼圖
+  - MyGO 表情貼圖
 - 自動複製貼上功能
 - 自動隱藏功能
 
@@ -95,7 +95,7 @@ python app.py
 
 - 程式可能需要管理員權限來監聽全局快捷鍵
 - 請確保系統剪貼簿功能正常
-- 首次運行 Mygo 表情貼圖功能時會自動創建下載目錄
+- 首次運行 MyGO 表情貼圖功能時會自動創建下載目錄
 
 ## 自訂配置
 
@@ -109,7 +109,7 @@ python app.py
 
 如果您在使用過程中遇到任何問題，請在 Issues 中回報。
 
-## Mygo API使用
+## MyGO API使用
 
 - https://mygo.miyago9267.com/
 - https://github.com/miyago9267/MyGO-Searcher
