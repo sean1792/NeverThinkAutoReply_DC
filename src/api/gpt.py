@@ -79,9 +79,7 @@ class GPT:
             return result
 
         except Exception as e:
-            error_msg = f"Error: {str(e)}"
-            logger.error(f"生成回應時發生錯誤: {str(e)}", exc_info=True)
-            return error_msg
+            raise RuntimeError(f"API 請求失敗: {str(e)}")
 
 
 if __name__ == '__main__':

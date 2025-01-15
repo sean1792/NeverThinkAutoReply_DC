@@ -3,6 +3,7 @@ import os
 import time
 
 import requests
+from httpx import NetworkError
 
 from src.configs import configs, WRITABLE_PATH
 from src.utils.logger import get_logger
@@ -30,16 +31,16 @@ def get_mygo_data(key: str):
         return result
     except requests.exceptions.RequestException as e:
         logger.error(f"API 請求失敗: {str(e)}", exc_info=True)
-        raise
+        raise RuntimeError(f"API 請求失敗: {str(e)}")
     except json.JSONDecodeError as e:
         logger.error(f"JSON 解析失敗: {str(e)}", exc_info=True)
-        raise
+        raise RuntimeError(f"JSON 解析失敗: {str(e)}")
     except KeyError as e:
         logger.error(f"數據結構錯誤: {str(e)}", exc_info=True)
-        raise
+        raise RuntimeError(f"數據結構錯誤: {str(e)}")
     except Exception as e:
         logger.error(f"獲取 Mygo 數據時發生未預期的錯誤: {str(e)}", exc_info=True)
-        raise
+        raise RuntimeError(f"獲取 Mygo 數據時發生未預期的錯誤: {str(e)}")
 
 
 def download_mygo(data: dict):
