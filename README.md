@@ -7,6 +7,8 @@
 
 ## 效果演示
 
+https://youtu.be/bpvHgRAo-eE
+
 [<video src='https://youtu.be/bpvHgRAo-eE' width=180/>](https://github.com/user-attachments/assets/d1a4e4d6-97b6-4c94-88d1-bd722eef82a0)
 
 ![](assets/demo/img2.png)
