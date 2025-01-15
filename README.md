@@ -1,10 +1,13 @@
 # Never Think Auto Reply
 
-一個方便快速回覆的桌面小工具，支援多種回覆模式，包括正常回覆、反駁、嘲諷以及 Mygo 圖。
+### 一個方便的快速回覆工具，搭配快捷鍵叫出，形成一個懶人回覆鏈
+### 多種智慧回覆模式，包括自動MyGo、正常、反駁、嘲諷，全程無需使用者動腦
 
 ![](assets/demo/img.png)
 
 ## 效果演示
+
+https://youtu.be/bpvHgRAo-eE
 
 [<video src='https://youtu.be/bpvHgRAo-eE' width=180/>](https://github.com/user-attachments/assets/d1a4e4d6-97b6-4c94-88d1-bd722eef82a0)
 
@@ -98,7 +101,7 @@ python app.py
 
 您可以在config.ini中修改以下設定：
 
-- 快捷鍵：修改 `hotkey` 變數
+- 快捷鍵：修改 `hotkey` 參數
 - GPT模型：修改 `gpt_model` 參數
 - OpenAI金鑰：修改 `openai` 參數
 
@@ -108,6 +111,5 @@ python app.py
 
 ## Mygo API使用
 
-- ```
-  https://mygo.miyago9267.com/
-  ```
+- https://mygo.miyago9267.com/
+- https://github.com/miyago9267/MyGO-Searcher
