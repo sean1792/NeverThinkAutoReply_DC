@@ -51,7 +51,7 @@ pip install -r requirements.txt
 openai = 你的OpenAI API Key
 ```
 
-## (推薦)使用方法 1 - 已打包版本(從右側Release下載)
+## (推薦)使用方法 1 - 使用已打包版本(從右側Releases下載)
 
 1. 運行程式：(建議)使用系統管理員 打開app.exe
 2. 基本操作流程：
