@@ -90,7 +90,7 @@ METHODS = {
     },
     Method.MYGO: {
         "icon": os.path.join(APP_ROOT_PATH, "assets/icons/guitar.png"),
-        "text": "Mygo",
+        "text": "MyGO",
         "type": Method.MYGO,
     }
 }
@@ -98,6 +98,7 @@ METHODS = {
 
 class HotkeySignals(QObject):
     triggered = Signal()
+    error = Signal(str)
 
 
 class HotkeyListener:
@@ -105,33 +106,102 @@ class HotkeyListener:
         logger.info("初始化快捷鍵監聽器")
         self.signals = HotkeySignals()
         self.is_listening = False
+        self._stopped_event = threading.Event()
         self._lock = threading.Lock()
+        self._check_timer = QTimer()
+        self._check_timer.timeout.connect(self._check_hotkey_status)
+        self._check_timer.setInterval(60000)
+        self._last_trigger_time = time.time()
+        self._consecutive_failures = 0
 
     def start(self):
         logger.info(f"啟動快捷鍵監聽: {HOTKEY}")
         with self._lock:
             if not self.is_listening:
-                keyboard.add_hotkey(HOTKEY, self.on_hotkey)
-                self.is_listening = True
+                try:
+                    keyboard.add_hotkey(HOTKEY, self.on_hotkey)
+                    self.is_listening = True
+                    self._check_timer.start()
+                    self._last_trigger_time = time.time()
+                    logger.info("快捷鍵監聽啟動成功")
+                except Exception as e:
+                    logger.error(f"快捷鍵註冊失敗: {str(e)}")
+                    self.signals.error.emit(f"快捷鍵註冊失敗: {str(e)}")
 
     def stop(self):
         logger.info("停止快捷鍵監聽")
         with self._lock:
             if self.is_listening:
-                keyboard.remove_hotkey(HOTKEY)
-                self.is_listening = False
+                try:
+                    keyboard.remove_hotkey(HOTKEY)
+                except Exception as e:
+                    logger.error(f"移除快捷鍵失敗: {str(e)}")
+                finally:
+                    self.is_listening = False
+                    self._check_timer.stop()
+                    self._stopped_event.set()
+
+    def _check_hotkey_status(self):
+        def _is_hotkey_pressed(hotkey: str):
+            keys = hotkey.split('+')
+            return all(keyboard.is_pressed(key) for key in keys)
+
+        with self._lock:
+            current_time = time.time()
+
+            if current_time - self._last_trigger_time > 300:
+                try:
+                    is_registered = _is_hotkey_pressed(HOTKEY)
+                    if not is_registered:
+                        self._consecutive_failures += 1
+                        logger.warning(f"快捷鍵連續失敗次數：{self._consecutive_failures}")
+
+                        if self._consecutive_failures >= 3:
+                            self._reset_hotkey()
+                    else:
+                        self._consecutive_failures = 0
+
+                except Exception as e:
+                    logger.error(f"檢查快捷鍵狀態時發生錯誤: {str(e)}")
+                    self._reset_hotkey()
 
     def on_hotkey(self):
+        if not self.is_listening:
+            logger.warning("快捷鍵未在監聽狀態")
+            return
+
+        self._last_trigger_time = time.time()
         if not is_processing:
-            logger.info("觸發快捷鍵，執行複製操作")
-            time.sleep(0.5)
-            pyautogui.hotkey('ctrl', 'c')
-            time.sleep(0.5)
-            self.signals.triggered.emit()
+            def process_hotkey():
+                try:
+                    logger.info("觸發快捷鍵，執行複製操作")
+                    time.sleep(0.5)
+                    pyautogui.hotkey('ctrl', 'c')
+                    time.sleep(0.5)
+                    self.signals.triggered.emit()
+                except Exception as e:
+                    logger.error(f"處理快捷鍵時發生錯誤: {str(e)}", exc_info=True)
+                    self.signals.error.emit(f"處理快捷鍵時發生錯誤: {str(e)}")
+
+            threading.Thread(target=process_hotkey, daemon=True).start()
+
+    def _reset_hotkey(self):
+        logger.info("重置快捷鍵")
+        with self._lock:
+            self.stop()
+            self._stopped_event.wait(timeout=1.0)
+            self._stopped_event.clear()
+            try:
+                self.start()
+                logger.info("快捷鍵重置完成")
+            except Exception as e:
+                logger.error(f"重置快捷鍵失敗: {str(e)}", exc_info=True)
+
 
 def paste_from_cp():
     time.sleep(0.5)
     pyautogui.hotkey('ctrl', 'v')
+
 
 class MouseClickListener:
     def __init__(self):
@@ -271,20 +341,26 @@ class QuickReply(QWidget):
         self.hide_timer.timeout.connect(self.check_focus)
         self.hide_timer.start(100)
 
+        self.setup_hotkey_listener()
+
         self.init_ui()
+        self.init_tray()
 
         self.active_threads: list[threading.Thread] = []
         self._thread_lock = threading.Lock()
-
-        self.init_tray()
-
-        self.setup_hotkey_listener()
 
     def setup_hotkey_listener(self):
         logger.info("設置快捷鍵監聽")
         self.hotkey_listener = HotkeyListener()
         self.hotkey_listener.signals.triggered.connect(self.on_hotkey)
+        self.hotkey_listener.signals.error.connect(self.handle_hotkey_error)
         self.hotkey_listener.start()
+
+    def handle_hotkey_error(self, error_msg):
+        logger.error(f"快捷鍵錯誤: {error_msg}")
+        show_notify(text=f"快捷鍵出現問題，嘗試重新註冊",
+                    icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+        self.hotkey_listener.reset()
 
     def init_tray(self):
         self.tray_icon = QSystemTrayIcon(self)
