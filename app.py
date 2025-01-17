@@ -20,8 +20,9 @@ from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
 from src.utils.logger import get_logger
 
+import logging
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, logging.INFO)
 
 processing_lock = threading.Lock()
 is_processing = False
@@ -128,6 +129,9 @@ class HotkeyListener:
             time.sleep(0.5)
             self.signals.triggered.emit()
 
+def paste_from_cp():
+    time.sleep(0.5)
+    pyautogui.hotkey('ctrl', 'v')
 
 class MouseClickListener:
     def __init__(self):
@@ -154,8 +158,10 @@ class MouseClickListener:
         try:
             if pressed and self.is_listening:
                 logger.info(f"檢測到滑鼠點擊: 座標({x}, {y})")
-                time.sleep(0.5)
-                pyautogui.hotkey('ctrl', 'v')
+                
+                temp_thread = threading.Thread(target=paste_from_cp, daemon=True)
+                temp_thread.start()
+                
                 self.stop_listening()
                 callback()
                 return False
@@ -246,6 +252,12 @@ def start_thread(method: Method, window):
     thread = threading.Thread(target=lambda: process(method, window), daemon=True)
     window.active_threads.append(thread)
     thread.start()
+
+# def start_mouseListen_thread(winodw):
+#     logger.info(f"啟動新線程處理 滑鼠 請求")
+#     thread = threading.Thread(target=lambda: process(method, window), daemon=True)
+#     window.active_threads.append(thread)
+#     thread.start()
 
 
 class QuickReply(QWidget):
@@ -347,7 +359,7 @@ class QuickReply(QWidget):
         if not is_processing and not self.isActiveWindow() and self.isVisible():
             logger.info("視窗失去焦點，自動隱藏")
             self.hide()
-
+    # overload
     def closeEvent(self, event):
         self.hotkey_listener.stop()
         mouse_listener.stop_listening()
