@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['app.py'],
+    ['NeverThinkAutoReply.py'],
     pathex=[],
     binaries=[],
     datas=[('assets', 'assets')],
