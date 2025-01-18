@@ -72,7 +72,7 @@ openai = 你的OpenAI API Key
 1. 運行程式：
 
 ```bash
-python app.py
+python NeverThinkAutoReply.py
 ```
 
 2. 基本操作流程：
