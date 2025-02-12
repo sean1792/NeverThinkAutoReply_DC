@@ -34,7 +34,6 @@ pip install -r requirements.txt
 主要依賴：
 
 - PySide6
-- keyboard
 - pyperclip
 - pyautogui
 - pynput
