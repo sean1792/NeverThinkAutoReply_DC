@@ -16,7 +16,7 @@ from PySide6.QtGui import QCursor, QIcon
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton, QVBoxLayout, QWidget, QSystemTrayIcon, QMenu
 from windows_toasts import WindowsToaster, Toast, ToastDisplayImage, ToastDuration
 
-from src.api.gpt import GPT
+from src.api.llm import LLM
 from src.api.mygo import download_mygo, get_mygo_data
 from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
@@ -43,20 +43,20 @@ def show_notify(text: str = "你點一下輸入框! 我來回...", icon: str = N
 logger = get_logger(__name__, logging.INFO)
 
 HOTKEY = configs["General"].get("hotkey", "<ctrl>+<shift>+x")
+BASE_MODEL = configs["General"].get("base_model", "openai")
 
 toaster = WindowsToaster("NeverThinkAutoReply")
 toast = Toast()
 toast.duration = ToastDuration.Short
 
 try:
-    logger.info("初始化 GPT 實例")
-    gpt = GPT()
+    llm = LLM(BASE_MODEL)
 except ValueError as e:
-    show_notify(text=f"請至 'config.ini' 文件內 'openai' 欄位填入API Key",
+    show_notify(text=f"請至 'config.ini' 文件內的[Keys] '{BASE_MODEL}' 欄位填入API Key",
                 icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
     sys.exit(1)
 except Exception as e:
-    logger.error(f"GPT 初始化失敗: {str(e)}")
+    logger.error(f"LLM 初始化失敗: {str(e)}")
     sys.exit(1)
 
 # ###########################################
@@ -154,27 +154,27 @@ def process(method: Method):  # second thread
                         icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
             return
 
-        logger.info("向 GPT 發送請求")
+        logger.info(f"向 {BASE_MODEL} 發送請求")
         try:
-            res = gpt.get_response(prompt=clipboard_content, method=method.value)
-            logger.info(f"GPT 回應: {res[:100]}...")
+            res = llm.get_response(prompt=clipboard_content, method=method.value)
+            logger.info(f"{BASE_MODEL} 回應: {res[:100]}...")
         except Exception as e:
-            show_notify(text=f"OpenAI API處理中發生錯誤: {str(e)}",
+            show_notify(text=f"{BASE_MODEL} API 處理中發生錯誤: {str(e)}",
                         icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
             return
 
         if method == Method.MYGO:
             try:
-                logger.info("處理 Mygo 類型回應")
+                logger.info("處理 MyGo 類型回應")
                 mygo_data = get_mygo_data(res)
-                logger.info(f"解析 Mygo 數據: {mygo_data}")
+                logger.info(f"解析 MyGo 數據: {mygo_data}")
 
                 download_path = os.path.join(WRITABLE_PATH, "downloaded")
                 os.makedirs(download_path, exist_ok=True)
                 file_path = os.path.join(download_path, f"{mygo_data['alt']}.jpg")
 
                 if not os.path.exists(file_path):
-                    logger.info(f"下載 Mygo 圖片: {mygo_data['alt']}")
+                    logger.info(f"下載 MyGo 圖片: {mygo_data['alt']}")
                     download_mygo(mygo_data)
                     time.sleep(0.1)
                 else:

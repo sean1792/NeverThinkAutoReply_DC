@@ -7,22 +7,25 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-class GPT:
-    def __init__(self):
-        logger.info("初始化 GPT 類")
-        api_key = configs["Keys"].get("openai")
+class LLM:
+    def __init__(self, base_model):
+        logger.info("初始化 LLM 類")
+        self.base_model = base_model
+        base_url = configs["BaseURL"].get(base_model)
+        api_key = configs["Keys"].get(base_model)
         if not api_key:
-            logger.error("找不到 OpenAI API key")
-            raise ValueError("OpenAI API key not found in config")
+            logger.error(f"找不到 {base_model} 的 API key")
+            raise ValueError(f"{base_model} API key not found in config")
 
-        self.model = configs["General"].get("gpt_model", "gpt-4o-mini")
+        self.model = configs["Model"].get(base_model)
         logger.info(f"使用模型: {self.model}")
 
         try:
-            self.client = OpenAI(api_key=api_key)
-            logger.info("OpenAI 客戶端初始化成功")
+            self.client = OpenAI(api_key=api_key,
+                                 base_url=base_url if base_url != "pass" else None)
+            logger.info(f"{base_model} 客戶端初始化成功")
         except Exception as e:
-            logger.error(f"OpenAI 客戶端初始化失敗: {str(e)}", exc_info=True)
+            logger.error(f"{base_model} 客戶端初始化失敗: {str(e)}", exc_info=True)
             raise
 
     @staticmethod
@@ -62,7 +65,7 @@ class GPT:
             system_prompt = self._prompt_loader(method)
             logger.debug(f"系統提示詞: {system_prompt[:100]}...")
 
-            logger.debug("發送 API 請求到 OpenAI")
+            logger.debug(f"發送 API 請求到 {self.base_model}")
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -80,17 +83,3 @@ class GPT:
 
         except Exception as e:
             raise RuntimeError(f"API 請求失敗: {str(e)}")
-
-
-if __name__ == '__main__':
-    try:
-        logger.info("開始測試 GPT 類")
-        gpt = GPT()
-        prompt = """
-        """
-        logger.info("發送測試請求")
-        reply = gpt.get_response(prompt=prompt, method=2)
-        logger.info("測試完成")
-        print(reply)
-    except Exception as e:
-        logger.error(f"測試過程中發生錯誤: {str(e)}", exc_info=True)

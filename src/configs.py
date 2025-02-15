@@ -4,7 +4,7 @@ import sys
 
 def _read_config():
     config = configparser.ConfigParser()
-    config.read(os.path.join(WRITABLE_PATH, "config.ini"))
+    config.read(os.path.join(WRITABLE_PATH, "config.ini"), encoding="utf-8")
 
     config_data = {}
 
