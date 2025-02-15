@@ -43,8 +43,16 @@ pip install -r requirements.txt
 
 ## 前置準備
 
-1. 右鍵使用記事本打開`config.ini` 並貼上OpenAI API Key：
+1. 右鍵使用記事本打開`config.ini`
+2. (可選)選擇主要模型 (openai, gemini, deepseek) (預設為openai)
+```bash
+[General]
+base_model = openai
+```
+> [!NOTE]
+> 於2.1版新增 "模型切換功能"
 
+3. 貼上 API Key (假設主要模型使用openai)
 ```bash
 [Keys]
 openai = 你的OpenAI API Key
