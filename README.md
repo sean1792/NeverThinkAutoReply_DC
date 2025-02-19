@@ -1,5 +1,8 @@
 # Never Think Auto Reply
 
+[![Releases Badge](https://img.shields.io/github/downloads/RyuuMeow/NeverThinkAutoReply/total)](https://github.com/RyuuMeow/NeverThinkAutoReply/releases)
+[![Latest Release](https://img.shields.io/github/v/release/RyuuMeow/NeverThinkAutoReply)](https://github.com/RyuuMeow/NeverThinkAutoReply/releases/latest)
+
 ### 一個方便的快速回覆工具，搭配快捷鍵叫出，形成一個懶人回覆鏈
 ### 多種智慧回覆模式，包括自動MyGo、正常、反駁、嘲諷，全程無需使用者動腦
 
