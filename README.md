@@ -16,7 +16,10 @@
 - https://youtu.be/67BNZq99TI8
 - https://youtu.be/bpvHgRAo-eE
 
-![](assets/demo/ntar_demo2.gif)
+![GIF](assets/demo/ntar_demo2.gif)
+
+![](assets/demo/img2.png)
+![](assets/demo/img3.png)
 
 ---
 
