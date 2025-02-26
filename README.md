@@ -18,9 +18,6 @@
 
 ![](assets/demo/ntar_demo2.gif)
 
-![](assets/demo/img2.png)
-![](assets/demo/img3.png)
-
 ---
 
 ## 功能特點
