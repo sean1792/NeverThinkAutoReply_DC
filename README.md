@@ -13,8 +13,8 @@
 
 ## 效果演示
 
-https://youtu.be/67BNZq99TI8
-https://youtu.be/bpvHgRAo-eE
+- https://youtu.be/67BNZq99TI8
+- https://youtu.be/bpvHgRAo-eE
 
 [<video src='https://youtu.be/67BNZq99TI8' width=180/>](https://github.com/user-attachments/assets/8d59fc0b-874d-4769-bb89-fcaa0746941b)
 
