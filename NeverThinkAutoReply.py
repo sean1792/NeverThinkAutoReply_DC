@@ -17,7 +17,6 @@ from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton, QVBoxLayou
 from windows_toasts import WindowsToaster, Toast, ToastDisplayImage, ToastDuration
 
 from src.api.llm import LLM
-from src.api.mygo import download_mygo, get_mygo_data
 from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
 from src.utils.logger import get_logger
@@ -68,6 +67,7 @@ class Method(Enum):
     REFUTE = auto()
     TOXIC = auto()
     MYGO = auto()
+    MUJICA = auto()
 
 
 METHODS = {
@@ -90,6 +90,11 @@ METHODS = {
         "icon": os.path.join(APP_ROOT_PATH, "assets/icons/guitar.png"),
         "text": "MyGO",
         "type": Method.MYGO,
+    },
+    Method.MUJICA: {
+        "icon": os.path.join(APP_ROOT_PATH, "assets/icons/theater.png"),
+        "text": "Mujica",
+        "type": Method.MUJICA,
     }
 }
 
@@ -163,22 +168,15 @@ def process(method: Method):  # second thread
                         icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
             return
 
-        if method == Method.MYGO:
+        if method == Method.MYGO or method == Method.MUJICA:
+            mygo_or_mujica = "mygo" if method == Method.MYGO else "mujica"
             try:
-                logger.info("處理 MyGo 類型回應")
-                mygo_data = get_mygo_data(res)
-                logger.info(f"解析 MyGo 數據: {mygo_data}")
+                logger.info("處理 MyGo / Ave Mujica 類型回應")
 
-                download_path = os.path.join(WRITABLE_PATH, "downloaded")
-                os.makedirs(download_path, exist_ok=True)
-                file_path = os.path.join(download_path, f"{mygo_data['alt']}.jpg")
+                file_path = os.path.join(WRITABLE_PATH, "assets", mygo_or_mujica, res)
 
                 if not os.path.exists(file_path):
-                    logger.info(f"下載 MyGo 圖片: {mygo_data['alt']}")
-                    download_mygo(mygo_data)
-                    time.sleep(0.1)
-                else:
-                    logger.info("圖片已存在，跳過下載")
+                    raise FileNotFoundError(f"找不到圖片名: {res}, 路徑: {file_path}")
 
                 logger.info(f"複製圖片到剪貼板: {file_path}")
                 copy_image(file_path)

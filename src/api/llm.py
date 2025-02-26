@@ -3,6 +3,7 @@ import os
 
 from src.configs import configs, APP_ROOT_PATH
 from src.utils.logger import get_logger
+from src.utils.get_picture_name import get_pic_list
 
 logger = get_logger(__name__)
 
@@ -34,7 +35,8 @@ class LLM:
             1: "normal",
             2: "refute",
             3: "toxic",
-            4: "mygo"
+            4: "mygo",
+            5: "mujica"
         }
 
         prompt_type = key_map.get(method)
@@ -48,6 +50,10 @@ class LLM:
         try:
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt_content = f.read().strip()
+                if prompt_type == "mygo":
+                    prompt_content = prompt_content.format(pics=get_pic_list("mygo"))
+                elif prompt_type == "mujica":
+                    prompt_content = prompt_content.format(pics=get_pic_list("mujica"))
                 logger.debug(f"成功加載 {prompt_type} 提示詞")
                 return prompt_content
         except FileNotFoundError:

@@ -5,7 +5,11 @@ a = Analysis(
     ['NeverThinkAutoReply.py'],
     pathex=[],
     binaries=[],
-    datas=[('assets', 'assets')],
+    datas = [
+    ('assets/icons', 'assets/icons'),
+    ('assets/prompts', 'assets/prompts'),
+    ('assets/stylesheets', 'assets/stylesheets')
+    ],
     hiddenimports=['winrt.windows.foundation.collections', 'winrt.windows.ui.notifications'],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +39,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['assets\\icons\\comment.png'],
+    icon=['assets\\icons\\huh.png'],
 )
