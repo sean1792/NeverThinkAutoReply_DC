@@ -51,7 +51,24 @@
 
 ---
 
-## 前置準備
+## (推薦)使用方法 1 - 使用已打包版本(從右側Releases下載)
+0. 前置準備：(參考下方前置準備說明)
+1. 運行程式：(建議)使用系統管理員 打開app.exe
+2. 基本操作流程：
+   - 反白要回覆的文字
+   - 按下快捷鍵 `Ctrl+Shift+X` 叫出選單
+   - 選擇回覆模式
+   - 等待Windows通知提示出現(需等待0.5至1秒不等)
+   - 點選要貼上的位置(輸入框)
+   - 程式會自動處理並貼上回覆內容
+
+### 開機自啟動設定
+1. 右鍵使用記事本開啟`NTAR_Run.bat`
+2. 將路徑替換為app.exe的絕對路徑 並儲存
+3. 將`NTAR_Run.bat`移動至`C:\Users\你的使用者名稱\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
+   (可直接於檔案總管路經欄搜尋startup)
+
+### 前置準備
 
 1. 右鍵使用記事本打開`config.ini`
 2. (可選)選擇主要模型 (openai, gemini, deepseek) (預設為openai)
@@ -70,24 +87,9 @@ openai = 你的OpenAI API Key
 
 ---
 
-## (推薦)使用方法 1 - 使用已打包版本(從右側Releases下載)
-
-1. 運行程式：(建議)使用系統管理員 打開app.exe
-2. 基本操作流程：
-   - 反白要回覆的文字
-   - 按下快捷鍵 `Ctrl+Shift+X` 叫出選單
-   - 選擇回覆模式
-   - 等待Windows通知提示出現(需等待0.5至1秒不等)
-   - 點選要貼上的位置(輸入框)
-   - 程式會自動處理並貼上回覆內容
-
-### 開機自啟動設定
-1. 右鍵使用記事本開啟`NTAR_Run.bat`
-2. 將路徑替換為app.exe的絕對路徑 並儲存
-3. 將`NTAR_Run.bat`移動至`C:\Users\你的使用者名稱\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
-   (可直接於檔案總管路經欄搜尋startup)
-
 ## 使用方法 2 - Clone Repo
+
+0. 前置準備：同上
 
 1. 安裝依賴
 
@@ -101,7 +103,7 @@ pip install -r requirements.txt
 python NeverThinkAutoReply.py
 ```
 
-3. 基本操作流程： 同上
+3. 基本操作流程：同上
 
 ---
 
