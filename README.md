@@ -69,7 +69,7 @@
    - 程式會自動處理並貼上回覆內容
 
 ### 開機自啟動設定
-1. 右鍵app.exe建立捷近
+1. 右鍵app.exe建立捷徑
 2. 將捷近移動至`C:\Users\你的使用者名稱\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
    (可直接於檔案總管路經欄搜尋startup)
 
