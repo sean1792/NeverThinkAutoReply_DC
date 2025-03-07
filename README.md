@@ -8,8 +8,12 @@
 
 ![](assets/demo/img1.png)
 
-> [!NOTE]
+> [!大更新]
 > 於2.2版新增 "Ave Mujica功能"
+
+> [!大更新]
+> 於2.3版新增 "圖片文字辨識(OCR)" 功能，實現以圖攻圖
+> 感謝 @xcn111
 
 ## 效果演示
 
@@ -48,6 +52,8 @@
 - windows-toasts
 - pywin32
 - openai
+- easyocr
+- opencv-python
 
 ---
 
@@ -55,20 +61,19 @@
 0. 前置準備：(參考下方前置準備說明)
 1. 運行程式：(建議)使用系統管理員 打開app.exe
 2. 基本操作流程：
-   - 反白要回覆的文字
+   - 反白要回覆的文字 或是 直接複製圖片
    - 按下快捷鍵 `Ctrl+Shift+X` 叫出選單
    - 選擇回覆模式
-   - 等待Windows通知提示出現(需等待0.5至1秒不等)
+   - 等待Windows通知提示出現(需等待0.5至1秒不等) (圖片文字辨識模式需等待更長時間)
    - 點選要貼上的位置(輸入框)
    - 程式會自動處理並貼上回覆內容
 
 ### 開機自啟動設定
-1. 右鍵使用記事本開啟`NTAR_Run.bat`
-2. 將路徑替換為app.exe的絕對路徑 並儲存
-3. 將`NTAR_Run.bat`移動至`C:\Users\你的使用者名稱\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
+1. 右鍵app.exe建立捷近
+2. 將捷近移動至`C:\Users\你的使用者名稱\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup`
    (可直接於檔案總管路經欄搜尋startup)
 
-### 前置準備
+### LLM 前置準備
 
 1. 右鍵使用記事本打開`config.ini`
 2. (可選)選擇主要模型 (openai, gemini, deepseek) (預設為openai)
@@ -84,6 +89,20 @@ base_model = openai
 [Keys]
 openai = 你的OpenAI API Key
 ```
+
+### OCR 前置準備
+
+0. (可選)右鍵使用記事本打開`config.ini`設定語言 (預設為繁體中文 zh-tw) (可切換為簡體中文 zh-cn)
+```bash
+[General]
+ocr_lang = zh-tw
+```
+
+> [!NOTE]
+> 於2.3版新增 "圖片文字辨識(OCR)功能"
+
+1. 打開ocr_download.exe
+2. 等待下載完成
 
 ---
 
@@ -122,6 +141,7 @@ python NeverThinkAutoReply.py
 
 - 快捷鍵：修改General類之 `hotkey` 參數
 - 模型切換：修改General類之 `base_model` 參數
+- OCR語言：修改General類之 `ocr_lang` 參數
 - API金鑰：修改Keys類之 `openai`、`gemini`、`deepseek` 參數
 
 ---
