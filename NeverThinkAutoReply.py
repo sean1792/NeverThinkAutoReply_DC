@@ -21,6 +21,10 @@ from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
 from src.utils.logger import get_logger
 
+from PIL import ImageGrab, Image, ImageEnhance
+import easyocr
+import cv2
+
 import logging
 
 # ###########################################
@@ -153,6 +157,35 @@ def process(method: Method):  # second thread
         clipboard_content = pyperclip.paste()
         logger.info(f"剪貼板內容: {clipboard_content[:100]}...")
 
+        im = ImageGrab.grabclipboard()
+        if isinstance(im, Image.Image):
+            im.save("temp.jpg")
+        elif im:
+            for filename in im:
+                try:
+                    logger.info(f"图片文件地址： {filename[:100]}...")
+                    im = Image.open(filename)
+                    im.save("temp.jpg")
+                except IOError:
+                    logger.warning("读取图片文件错误")
+                    pass
+
+        if im:
+            try:
+                image = cv2.imread("temp.jpg")
+                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                cv2.imwrite("gray.jpg", gray)
+                reader = easyocr.Reader(['ch_sim'])
+                result = reader.readtext("gray.jpg")
+
+                for detection in result:
+                    clipboard_content += detection[1]
+                logger.info(f"剪切板图片识别为：{clipboard_content[:100]}...")
+            except Exception as e:
+                show_notify(text=f"图片识别中发生错误: {str(e)}",
+                            icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+                return
+
         if not clipboard_content.strip():
             logger.warning("剪貼板是空的")
             show_notify(text="請先反白要針對回覆的內容！",
@@ -195,6 +228,10 @@ def process(method: Method):  # second thread
                                   mouse_on_click_action(x, y, button, pressed))
         mouse_listener.start()
     finally:
+        if os.path.exists("temp.jpg"):
+            os.remove("temp.jpg")
+        if os.path.exists("gray.jpg"):
+            os.remove("gray.jpg")
         status_signal_slots.task_running.clear()
         logger.info("'status_signal_slots.task_running' cleared")
 
