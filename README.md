@@ -15,6 +15,10 @@
 > 於2.3版新增 "圖片文字辨識(OCR)" 功能，實現以圖攻圖
 > 感謝 @xcn111
 
+## 設定教學
+
+- https://youtu.be/QEMjLTqNVmw
+- 
 ## 效果演示
 
 - https://youtu.be/67BNZq99TI8
