@@ -1,2 +1,4 @@
 downloaded/*
 __pycache__
+app.log
+config.ini
