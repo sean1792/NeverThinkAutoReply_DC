@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import logging
 from enum import Enum, auto
 import threading
 from functools import partial
@@ -10,6 +11,9 @@ import pyperclip
 import pyautogui
 from pynput import keyboard
 from pynput.mouse import Listener, Button
+from PIL import ImageGrab, Image, ImageEnhance
+import easyocr
+import cv2
 
 from PySide6.QtCore import Qt, QSize, QPoint, QFile, QTextStream, Signal, QObject, QTimer
 from PySide6.QtGui import QCursor, QIcon
@@ -20,8 +24,6 @@ from src.api.llm import LLM
 from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
 from src.utils.logger import get_logger
-
-import logging
 
 # ###########################################
 # Notify
@@ -39,10 +41,21 @@ def show_notify(text: str = "你點一下輸入框! 我來回...", icon: str = N
 # Initialize Instances
 # ###########################################
 
+lang_map = {
+    'zh-cn': 'ch_sim',
+    'zh-tw': 'ch_tra',
+}
+
+lang_cfg = configs["General"].get("ocr_lang", "zh-tw")
+lang = lang_map[lang_cfg]
+
 logger = get_logger(__name__, logging.INFO)
 
 HOTKEY = configs["General"].get("hotkey", "<ctrl>+<shift>+x")
 BASE_MODEL = configs["General"].get("base_model", "openai")
+ERROR_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/error.png")
+SUCCESS_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/success.png")
+TEMP_IMG_PATH = os.path.join(WRITABLE_PATH, "assets/temp/temp.jpg")
 
 toaster = WindowsToaster("NeverThinkAutoReply")
 toast = Toast()
@@ -52,7 +65,7 @@ try:
     llm = LLM(BASE_MODEL)
 except ValueError as e:
     show_notify(text=f"請至 'config.ini' 文件內的[Keys] '{BASE_MODEL}' 欄位填入API Key",
-                icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+                icon=ERROR_ICON)
     sys.exit(1)
 except Exception as e:
     logger.error(f"LLM 初始化失敗: {str(e)}")
@@ -148,24 +161,51 @@ hotkey_listener.start()
 # Processor
 # ###########################################
 
+def ocr(img: Image.Image) -> str:
+    text_content = ""
+
+    img.save(TEMP_IMG_PATH)
+    target_image = cv2.imread(TEMP_IMG_PATH)
+    target_image = cv2.cvtColor(target_image, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(TEMP_IMG_PATH, target_image)
+    ocr_reader = easyocr.Reader([lang])  # OCR支援語言 : 繁體、簡體
+    result = ocr_reader.readtext(TEMP_IMG_PATH)
+
+    for detection in result:
+        text_content += detection[1]
+    logger.info(f"OCR檢測文字內容：{text_content[:100]}...")
+
+    return text_content
+
 def process(method: Method):  # second thread
     try:
-        clipboard_content = pyperclip.paste()
-        logger.info(f"剪貼板內容: {clipboard_content[:100]}...")
+        target_text_content = pyperclip.paste()
+        target_img_content = ImageGrab.grabclipboard()
 
-        if not clipboard_content.strip():
+        logger.info(f"target_text_content: {target_text_content[:100]}...")
+        logger.info(f"target_img_content: {target_img_content}")
+
+        if not target_text_content and not target_img_content:
             logger.warning("剪貼板是空的")
-            show_notify(text="請先反白要針對回覆的內容！",
-                        icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+            show_notify(text="請先反白要針對回覆的內容，或是複製圖片到剪貼版！",
+                        icon=ERROR_ICON)
             return
+
+        if isinstance(target_img_content, Image.Image):
+            try:
+                target_text_content = ocr(target_img_content)
+            except Exception as e:
+                show_notify(text=f"OCR發生錯誤: {str(e)}",
+                            icon=ERROR_ICON)
+                return
 
         logger.info(f"向 {BASE_MODEL} 發送請求")
         try:
-            res = llm.get_response(prompt=clipboard_content, method=method.value)
+            res = llm.get_response(prompt=target_text_content, method=method.value)
             logger.info(f"{BASE_MODEL} 回應: {res[:100]}...")
         except Exception as e:
             show_notify(text=f"{BASE_MODEL} API 處理中發生錯誤: {str(e)}",
-                        icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+                        icon=ERROR_ICON)
             return
 
         if method == Method.MYGO or method == Method.MUJICA:
@@ -182,19 +222,22 @@ def process(method: Method):  # second thread
                 copy_image(file_path)
             except Exception as e:
                 show_notify(text=str(e),
-                            icon=os.path.join(APP_ROOT_PATH, "assets/icons/error.png"))
+                            icon=ERROR_ICON)
                 return
         else:
             logger.info("複製回覆到剪貼板")
             pyperclip.copy(res)
 
         show_notify(text="請點擊要貼上的位置 (輸入框)",
-                    icon=os.path.join(APP_ROOT_PATH, "assets/icons/success.png"))
+                    icon=SUCCESS_ICON)
 
         mouse_listener = Listener(on_click=lambda x, y, button, pressed:
                                   mouse_on_click_action(x, y, button, pressed))
         mouse_listener.start()
     finally:
+        if os.path.exists(TEMP_IMG_PATH):
+            os.remove(TEMP_IMG_PATH)
+
         status_signal_slots.task_running.clear()
         logger.info("'status_signal_slots.task_running' cleared")
 
@@ -227,7 +270,7 @@ class NeverThinkAutoReply(QWidget):
 
     def init_tray(self):
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon(os.path.join(APP_ROOT_PATH, "assets/icons/comment.png")))
+        self.tray_icon.setIcon(QIcon(os.path.join(APP_ROOT_PATH, "assets/icons/huh.png")))
 
         tray_menu = QMenu()
         show_action = tray_menu.addAction("顯示")

@@ -6,7 +6,7 @@ from src.utils.logger import get_logger
 from src.utils.get_picture_name import get_pic_list
 
 logger = get_logger(__name__)
-
+filter_pic = []
 
 class LLM:
     def __init__(self, base_model):
@@ -31,6 +31,8 @@ class LLM:
 
     @staticmethod
     def _prompt_loader(method: int):
+        global filter_pic
+
         key_map = {
             1: "normal",
             2: "refute",
@@ -51,9 +53,9 @@ class LLM:
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt_content = f.read().strip()
                 if prompt_type == "mygo":
-                    prompt_content = prompt_content.format(pics=get_pic_list("mygo"))
+                    prompt_content = prompt_content.format(pics=get_pic_list("mygo", filter_pic=filter_pic))
                 elif prompt_type == "mujica":
-                    prompt_content = prompt_content.format(pics=get_pic_list("mujica"))
+                    prompt_content = prompt_content.format(pics=get_pic_list("mujica", filter_pic=filter_pic))
                 logger.debug(f"成功加載 {prompt_type} 提示詞")
                 return prompt_content
         except FileNotFoundError:
@@ -64,6 +66,8 @@ class LLM:
             raise
 
     def get_response(self, prompt: str, method: int, max_tokens: int = 500, temperature: float = 0.7):
+        global filter_pic
+
         logger.info(f"開始生成回應 (方法: {method}, 最大token: {max_tokens}, 溫度: {temperature})")
         logger.debug(f"輸入文本: {prompt[:100]}...")
 
@@ -85,6 +89,12 @@ class LLM:
             result = response.choices[0].message.content.strip()
             logger.info("成功獲得 API 回應")
             logger.debug(f"生成的回應: {result[:100]}...")
+
+            if len(filter_pic) >= 10:  #回复图片不会在十次内重复出现
+                filter_pic.pop(0)
+
+            filter_pic.append(result)
+
             return result
 
         except Exception as e:
