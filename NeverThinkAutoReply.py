@@ -20,7 +20,7 @@ from PySide6.QtGui import QCursor, QIcon
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QPushButton, QVBoxLayout, QWidget, QSystemTrayIcon, QMenu
 from windows_toasts import WindowsToaster, Toast, ToastDisplayImage, ToastDuration
 
-from src.api.llm import LLM
+from src.api.llm import get_llm
 from src.utils.copy_ import copy_image
 from src.configs import APP_ROOT_PATH, WRITABLE_PATH, configs
 from src.utils.logger import get_logger
@@ -30,6 +30,8 @@ from src.utils.logger import get_logger
 # ###########################################
 
 def show_notify(text: str = "你點一下輸入框! 我來回...", icon: str = None):
+    toast = Toast()
+    toast.duration = ToastDuration.Short
     logger.info(f"顯示通知: {text}")
     toast.text_fields = [text]
     if icon:
@@ -49,20 +51,18 @@ lang_map = {
 lang_cfg = configs["General"].get("ocr_lang", "zh-tw")
 lang = lang_map[lang_cfg]
 
-logger = get_logger(__name__, logging.INFO)
+logger = get_logger(__name__, logging.DEBUG)
 
 HOTKEY = configs["General"].get("hotkey", "<ctrl>+<shift>+x")
-BASE_MODEL = configs["General"].get("base_model", "openai")
+BASE_MODEL = configs["General"].get("model_base", "openai")
 ERROR_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/error.png")
 SUCCESS_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/success.png")
 TEMP_IMG_PATH = os.path.join(WRITABLE_PATH, "assets/temp/temp.jpg")
 
 toaster = WindowsToaster("NeverThinkAutoReply")
-toast = Toast()
-toast.duration = ToastDuration.Short
 
 try:
-    llm = LLM(BASE_MODEL)
+    llm = get_llm(BASE_MODEL)
 except ValueError as e:
     show_notify(text=f"請至 'config.ini' 文件內的[Keys] '{BASE_MODEL}' 欄位填入API Key",
                 icon=ERROR_ICON)
@@ -173,7 +173,7 @@ def ocr(img: Image.Image) -> str:
 
     for detection in result:
         text_content += detection[1]
-    logger.info(f"OCR檢測文字內容：{text_content[:100]}...")
+    logger.info(f"OCR檢測文字內容: {text_content if len(text_content) <= 100 else f'{text_content[:100]}...'}")
 
     return text_content
 
@@ -182,7 +182,7 @@ def process(method: Method):  # second thread
         target_text_content = pyperclip.paste()
         target_img_content = ImageGrab.grabclipboard()
 
-        logger.info(f"target_text_content: {target_text_content[:100]}...")
+        logger.info(f"target_text_content: {target_text_content if len(target_text_content) <= 100 else f'{target_text_content[:100]}...'}")
         logger.info(f"target_img_content: {target_img_content}")
 
         if not target_text_content and not target_img_content:
@@ -200,15 +200,19 @@ def process(method: Method):  # second thread
                 return
 
         logger.info(f"向 {BASE_MODEL} 發送請求")
+        
+        is_res_image = (method == Method.MYGO or method == Method.MUJICA)
+        max_tokens = 32 if is_res_image else 500 # 如果只需要回復圖片檔案名稱, 不應該生成那麼多 tokens
+        
         try:
-            res = llm.get_response(prompt=target_text_content, method=method.value)
-            logger.info(f"{BASE_MODEL} 回應: {res[:100]}...")
+            res = llm.get_response(prompt=target_text_content, method=method.value, max_tokens=max_tokens)
+            logger.info(f"{BASE_MODEL} 回應: {res if len(res) <= 100 else f'{res[:100]}...'}")
         except Exception as e:
             show_notify(text=f"{BASE_MODEL} API 處理中發生錯誤: {str(e)}",
                         icon=ERROR_ICON)
             return
 
-        if method == Method.MYGO or method == Method.MUJICA:
+        if is_res_image:
             mygo_or_mujica = "mygo" if method == Method.MYGO else "mujica"
             try:
                 logger.info("處理 MyGo / Ave Mujica 類型回應")
@@ -317,7 +321,7 @@ class NeverThinkAutoReply(QWidget):
             self.hide()
         else:
             logger.info("任務正在執行中，忽略此次操作")
-            return
+            show_notify(text="正在處理另一個任務", icon=ERROR_ICON)
 
     def on_hotkey(self):
         if (not status_signal_slots.window_status and
@@ -328,6 +332,7 @@ class NeverThinkAutoReply(QWidget):
             self.show_below_cursor()
         else:
             logger.info("視窗已存在，忽略此次操作")
+            show_notify(text="正在處理另一個任務", icon=ERROR_ICON)
 
     def load_style_sheet(self):
         logger.debug("加載StyleSheets")
