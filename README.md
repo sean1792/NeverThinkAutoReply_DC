@@ -15,6 +15,10 @@
 > 於2.3版新增 "圖片文字辨識(OCR)" 功能，實現以圖攻圖
 > 感謝 @xcn111
 
+> [!NOTE]
+> 於2.4版(非打包版) 新增 "HuggingFace模型載入" 功能
+> 感謝 @NoodleInWater
+
 ## 設定教學
 
 - https://youtu.be/QEMjLTqNVmw
