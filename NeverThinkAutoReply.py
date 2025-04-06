@@ -379,7 +379,6 @@ def app_run():
     window = NeverThinkAutoReply()
 
     logger.info("進入主事件循環")
-    show_notify("NeverThinkAutoReply 已成功啟動", icon=SUCCESS_ICON)
     app.exec()
     logger.info("應用程序結束")
 
