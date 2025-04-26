@@ -54,7 +54,7 @@ lang = lang_map[lang_cfg]
 logger = get_logger(__name__, logging.DEBUG)
 
 HOTKEY = configs["General"].get("hotkey", "<ctrl>+<shift>+x")
-BASE_MODEL = configs["General"].get("model_base", "openai")
+BASE_MODEL = configs["General"].get("base_model", "openai")
 ERROR_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/error.png")
 SUCCESS_ICON = os.path.join(APP_ROOT_PATH, "assets/icons/success.png")
 TEMP_IMG_PATH = os.path.join(WRITABLE_PATH, "assets/temp/temp.jpg")
