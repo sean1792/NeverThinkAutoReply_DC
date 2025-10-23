@@ -8,6 +8,9 @@ from enum import Enum, auto
 import os
 import glob
 
+# 獲得api_key
+api_key = os.getenv("API_KEY")
+token = os.getenv("TOKEN")
 # 設定 Intents
 intents = discord.Intents.default()
 intents.messages = True
@@ -145,5 +148,5 @@ async def on_message(message):
             await message.channel.send(f'嗨 {message.author.mention}，你提到我了！')
 
 # 你的 bot token
-TOKEN = ""
+TOKEN = token
 bot.run(TOKEN)
