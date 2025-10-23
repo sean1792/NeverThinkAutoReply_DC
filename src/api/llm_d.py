@@ -15,7 +15,9 @@ class LLM:
         logger.info("初始化 LLM 類")
         self.base_model = base_model
         base_url = configs["BaseURL"].get(base_model)
-        api_key = configs["Keys"].get(base_model)
+        # api_key = configs["Keys"].get(base_model)
+        # 獲得api_key
+        api_key = os.getenv("API_KEY")
         # if not api_key:
         #     logger.error(f"找不到 {base_model} 的 API key")
         #     raise ValueError(f"{base_model} API key not found in config")
