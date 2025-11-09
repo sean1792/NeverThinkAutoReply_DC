@@ -71,7 +71,7 @@ class LLM:
     def get_response(self,
                      prompt: str,
                      method: int,
-                     max_tokens: int = 500,
+                     max_tokens: int = 2000,
                      temperature: float = 0.7,
                      two_step: bool = False,
                      pic_filter: bool = False):
@@ -99,6 +99,11 @@ class LLM:
                     max_tokens=max_tokens,
                     temperature=temperature
                 )
+                if response.choices[0].finish_reason == "length":
+                    logger.warning("⚠️ 回應被截斷，JSON 可能不完整，請提高 max_tokens")
+                    raise TokenLimitError(
+                        f"❌ Token 不足: 輸入長度(因為會輸出輸入了什麼)={response.usage.prompt_tokens - 24429}:, max_tokens={max_tokens}"
+                    )
                 jsondata = json.loads(response.choices[0].message.content)
                 logger.info(jsondata)
                 if type(jsondata) is list:
