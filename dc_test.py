@@ -65,6 +65,14 @@ async def on_message(message):
                 try:
                     res = llm.get_response(prompt=replied_content, method=0) # 4: mygo 5: mujica 6: mygo + mujica
                     logger.info(f"{BASE_MODEL} 回應: {res[:100]}...")
+                # except (TokenLimitError, FormatError) as e:
+                except TokenLimitError as e:
+                    logger.warning(f"輸入過長: {e} 即將重試")
+                    input_tokens = e.args[0].split('輸入長度:')[1].split(',')[0] if '輸入長度:' in str(e) else None
+                    new_max_tokens = int(input_tokens or 0) + 1000 # 考慮用變數來統一這個跟原本的max_tokens
+                    res = llm.get_response(prompt=replied_content, method=0, max_tokens=new_max_tokens) # 4: mygo 5: mujica 6: mygo + mujica
+                    logger.info(f"{BASE_MODEL} 回應: {res[:100]}...")
+                    
                 except Exception as e:
                     logger.info(f"{BASE_MODEL} API 處理中發生錯誤: {str(e)}",
                                 )
