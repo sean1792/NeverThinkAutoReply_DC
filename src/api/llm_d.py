@@ -101,8 +101,9 @@ class LLM:
                 )
                 if response.choices[0].finish_reason == "length":
                     logger.warning("⚠️ 回應被截斷，JSON 可能不完整，請提高 max_tokens")
+                    # 輸入長度 = 總prompt長度-手動計算的提示詞長度(會根據提示詞以及圖片數量變化)
                     raise TokenLimitError(
-                        f"❌ Token 不足: 輸入長度(因為會輸出輸入了什麼)={response.usage.prompt_tokens - 24429}:, max_tokens={max_tokens}"
+                        f"❌ Token 不足: 輸入長度:{response.usage.prompt_tokens - 24429}, max_tokens:{max_tokens}"
                     )
                 jsondata = json.loads(response.choices[0].message.content)
                 logger.info(jsondata)
